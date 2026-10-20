@@ -65,3 +65,22 @@ def test_more_ops():
     # backward pass went well
     assert abs(amg.grad - apt.grad.item()) < tol
     assert abs(bmg.grad - bpt.grad.item()) < tol
+
+def test_zero_power_at_zero_has_zero_gradient():
+    x = Value(0.0)
+    y = x**0
+
+    y.backward()
+
+    assert y.data == 1.0
+    assert x.grad == 0.0
+
+def test_backward_handles_deep_graphs():
+    x = Value(1.0)
+    result = x
+    for _ in range(2000):
+        result = result + 1
+
+    result.backward()
+
+    assert x.grad == 1.0

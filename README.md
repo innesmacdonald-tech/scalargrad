@@ -1,15 +1,22 @@
 # scalargrad
 
-A small scalar-valued autograd engine with a minimal neural network library on top.
+I use ScalarGrad to explore how automatic differentiation works under the hood.
+It is a small scalar-valued autograd engine with a minimal neural-network library,
+inspired by Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd).
 
-
-## Install
+## Installation
 
 ```bash
 pip install -e .
 ```
 
-## Usage
+To run the notebook demo, install its additional dependencies:
+
+```bash
+pip install numpy matplotlib scikit-learn jupyter
+```
+
+## Quick start
 
 ```python
 from scalargrad.engine import Value
@@ -27,13 +34,15 @@ from scalargrad.nn import MLP
 model = MLP(2, [16, 16, 1])
 ```
 
-See `demo.ipynb` for training a binary classifier on the moons dataset.
+The [demo notebook](demo.ipynb) walks through training a binary classifier on
+the moons dataset with this engine.
 
-## Tests
+## Running the tests
 
-Tests compare gradients against PyTorch, so install `torch` and `pytest`, then:
+The tests compare gradients against PyTorch. Install the test dependencies and
+run the suite with:
 
 ```bash
+pip install torch pytest
 python -m pytest
 ```
-

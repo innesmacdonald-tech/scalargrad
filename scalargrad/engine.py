@@ -1,6 +1,8 @@
 
 class Value:
-    """ stores a single scalar value and its gradient """
+    """Store a scalar value and its gradient."""
+
+    __slots__ = ("data", "grad", "_backward", "_prev", "_op")
 
     def __init__(self, data, _children=(), _op=''):
         self.data = data
@@ -33,11 +35,13 @@ class Value:
         return out
 
     def __pow__(self, other):
-        assert isinstance(other, (int, float)), "only supporting int/float powers for now"
+        if not isinstance(other, (int, float)):
+            raise TypeError("only supporting int/float powers for now")
         out = Value(self.data**other, (self,), f'**{other}')
 
         def _backward():
-            self.grad += (other * self.data**(other-1)) * out.grad
+            if other != 0:
+                self.grad += (other * self.data**(other-1)) * out.grad
         out._backward = _backward
 
         return out
@@ -52,19 +56,18 @@ class Value:
         return out
 
     def backward(self):
-
-        # topological order all of the children in the graph
         topo = []
         visited = set()
-        def build_topo(v):
-            if v not in visited:
-                visited.add(v)
-                for child in v._prev:
-                    build_topo(child)
-                topo.append(v)
-        build_topo(self)
+        stack = [(self, False)]
+        while stack:
+            value, expanded = stack.pop()
+            if expanded:
+                topo.append(value)
+            elif value not in visited:
+                visited.add(value)
+                stack.append((value, True))
+                stack.extend((child, False) for child in value._prev)
 
-        # go one variable at a time and apply the chain rule to get its gradient
         self.grad = 1
         for v in reversed(topo):
             v._backward()

@@ -18,6 +18,10 @@ class Neuron(Module):
         self.nonlin = nonlin
 
     def __call__(self, x):
+        if len(x) != len(self.w):
+            raise ValueError(
+                f"expected {len(self.w)} inputs, received {len(x)}"
+            )
         act = sum((wi*xi for wi,xi in zip(self.w, x)), self.b)
         return act.relu() if self.nonlin else act
 
